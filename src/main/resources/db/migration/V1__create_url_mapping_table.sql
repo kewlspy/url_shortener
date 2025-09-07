@@ -1,0 +1,10 @@
+CREATE TABLE url_table (
+    id BIGSERIAL PRIMARY KEY,    
+    short_key VARCHAR(10) NOT NULL UNIQUE,
+    original_url VARCHAR(2048) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMPTZ NOT NULL DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days'),
+    hits BIGINT NOT NULL DEFAULT 0
+);
+
+CREATE INDEX idx_original_url ON url_table(original_url);
