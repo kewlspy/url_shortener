@@ -35,7 +35,7 @@ class UrlController(private val urlService: UrlService) {
     ): ResponseEntity<CreateShortUrlResponse> {
         urlService.validateUrl(request.url)
         val response = urlService.shorten(request.url)
-        return ResponseEntity.status(HttpStatus.CREATED).body(response) 
+        return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
 
     @GetMapping("/api/v1/urls/{slug}")
@@ -46,7 +46,6 @@ class UrlController(private val urlService: UrlService) {
         )
     }
 
-    // Friendly redirect endpoint for browsers or simple HTTP clients
     @GetMapping("/{slug}")
     fun redirect(@PathVariable slug: String): ResponseEntity<Void> {
         val mapping = urlService.resolve(slug)
