@@ -8,6 +8,8 @@ import com.kewlspy.url_shortner.util.Base62
 import jakarta.transaction.Transactional
 import java.net.URI
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -51,6 +53,10 @@ class UrlService(
 
         val shortKey = generateUniqueShortKey()
         val saved = repository.save(UrlMapping(shortKey = shortKey, originalUrl = normalized))
+
+        // Evict cache for this slug in case of updates
+        evictCache(saved.shortKey)
+
         return CreateShortUrlResponse(
                 id = saved.shortKey,
                 shortKey = buildShortUrl(saved.shortKey),
@@ -59,6 +65,7 @@ class UrlService(
     }
 
     @Transactional
+    @Cacheable(value = ["urlCache"], key = "#slug")
     fun resolve(slug: String): UrlMapping {
         val mapping =
                 repository.findByShortKey(slug).orElseThrow {
@@ -66,11 +73,14 @@ class UrlService(
                 }
         mapping.hits = mapping.hits + 1
         repository.save(mapping)
-
         return mapping
     }
 
-    //   Paginated listing of Url mappings, mapped into DTOs that contain slug + full shortUrl.
+    @CacheEvict(value = ["urlCache"], key = "#slug")
+    fun evictCache(slug: String) {
+        // no implementation needed; Spring handles eviction
+    }
+
     fun listAll(
             page: Int = 0,
             size: Int = 20,
@@ -89,9 +99,7 @@ class UrlService(
         }
     }
 
-    private fun normalize(url: String): String {
-        return url.trim()
-    }
+    private fun normalize(url: String): String = url.trim()
 
     private fun generateUniqueShortKey(): String {
         var shortKey: String
@@ -105,7 +113,6 @@ class UrlService(
         if (attempts >= 10) {
             throw RuntimeException("Unable to generate unique short key after 10 attempts")
         }
-
         return shortKey
     }
 

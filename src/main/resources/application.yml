@@ -7,6 +7,12 @@ spring:
     locations: classpath:db/migration
     validate-on-migrate: false
 
+  cache:
+    type: caffeine
+
+  caffeine:
+    spec: maximumSize=10000,expireAfterWrite=10m
+
 # default fallback base url
 app:
   base-url: http://localhost:8080
