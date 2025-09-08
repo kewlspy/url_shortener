@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: url-shortner
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: false
+
+# default fallback base url
+app:
+  base-url: http://localhost:8080

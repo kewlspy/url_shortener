@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:db}:${DB_PORT:5432}/${DB_NAME:url_shortner}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+
+app:
+  base-url: https://short.yourdomain.com
